@@ -1,5 +1,5 @@
 # automatic-2048
-Play the famous 2048 game automatically!
+Play the famous 2048 game automatically, and see how smart (or silly) is your computer!
 
 ## Requirements
 - C Compiler
