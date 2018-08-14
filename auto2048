@@ -2,6 +2,7 @@
 
 TIMES=1 # How many times will the game run
 SCHEME='' # The scheme for 2048
+TRUNCATE_SCORE="true"
 
 while [ $# -ne 0 ]
 do
@@ -12,6 +13,7 @@ do
 		echo ""
 		echo "Options:"
 		echo "-h: Print this message"
+		echo "-n: Don't truncate the old score file"
 		echo ""
 		echo "scheme:"
 		echo "    none: default scheme"
@@ -19,12 +21,18 @@ do
 		echo "    bluered: blue-to-red color scheme (requires 256 colors)"
 		echo ""
 		echo "loop-times: How many times would your computer play. Defaults to 1"
+		echo "you can specify any number of all those arguments, and the order does not matter,"
+		echo "but only the last one will take place(i.e. the last numeral will be loop-times,"
+		echo "and the last non-numeral will be scheme"
 		echo ""
 		exit 0
-	elif [ "$1" -eq "$1" ] 2> /dev/null
+	elif [ "$1" = "-n" ]
+	then
+		TRUNCATE_SCORE="false"
+	elif [ "$1" -eq "$1" ] 2> /dev/null # is a number, should be loop-times
 	then
 		TIMES=$1
-	else
+	else # not a number, should be scheme
 		SCHEME=$1
 	fi
 	shift
@@ -36,20 +44,33 @@ function gen_input() # Generate strings like "wasdwasd" for 2048
 	do
 		n=$((($RANDOM*$RANDOM)%4))
 		case $n in
-			0) echo -n w;;
-			1) echo -n a;;
-			2) echo -n s;;
-			3) echo -n d;;
+			0) echo -n w;; # up
+			1) echo -n a;; # left
+			2) echo -n s;; # down
+			3) echo -n d;; # right
 		esac
 	done
 }
 
-:>score # Truncate score file
+if ${TRUNCATE_SCORE}
+then
+	:>score # Truncate score file
+fi
+
+# Base directory of this program
+bd=`dirname $0`
+if [ ${bd} = "" ] # PATH search needed
+then
+	cmd2048=2048
+else
+	cmd2048=${bd}/2048
+fi
 
 # Main loop
 for ((i=0; i<$TIMES; i++))
 do
-	gen_input | ./2048 $SCHEME  2>> score
+	gen_input | ${cmd2048} $SCHEME  2>> score
+	sleep 3
 done
 
 exit 0
